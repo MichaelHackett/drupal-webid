@@ -1,15 +1,37 @@
 <?php
-if (module_exists('libraries')) {
-    define('AUTHENTICATION_LIBRARY_PATH', libraries_get_path('libAuthentication'));
-} else {
-    define('AUTHENTICATION_LIBRARY_PATH', drupal_get_path('module', 'webidauth') .
-        '/vendor/libAuthentication');
-}
-    // Attempts to load the ARC2 library, if available.
-    if (!class_exists('Authentication_FoafSSLDelegate') && file_exists(AUTHENTICATION_LIBRARY_PATH .
-        '/lib/Authentication.php')) {
-        @include_once AUTHENTICATION_LIBRARY_PATH . '/lib/Authentication.php';
-    }
+
+/**
+ *     
+ * @copyright 
+ *     WebIDauth - WebID authentication module for Drupal
+ *     Copyright (C) 2012  mEducator Best Practice Network
+ * @license 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @author 
+ *      Lazaros Ioannidis 
+ *      Charalampos Bratsas
+ *      Dimitris Spachos 
+ * 
+ */
+
+
+/**
+ * @file
+ * WebID authentication module supporting pages
+ */
+
+
 /**
  * Menu callback; Manage WebID identities for the specified user.
  */
@@ -45,9 +67,14 @@ function webidauth_user_identities($account)
 }
 
 
-function webidauth_add_page(){
+/**
+ * Menu callback; Add a WebID identity for the logged in user.
+ * 
+ * @return
+ */
+function webidauth_add_page()
+{
 
-    
     global $user;
     $auth = new Authentication_FoafSSLDelegate(false);
     if (isset($_REQUEST['error'])) {
@@ -65,7 +92,7 @@ function webidauth_add_page(){
                 drupal_set_message(t('The claimed WebID is already used by another user. Please
                 contact ' . variable_get('site_name') . ' administrator.'),
                     'warning');
-                    drupal_goto('user/' . $user->uid . '/webidauth/');
+                drupal_goto('user/' . $user->uid . '/webidauth/');
 
             } else {
 
@@ -79,16 +106,18 @@ function webidauth_add_page(){
         }
     }
 
-    
 }
 
 
+/**
+ * Menu callback; Authenticate with a  WebID identity for the logged in user.
+ * 
+ * @return
+ */
 function webidauth_authentication_page()
 {
 
     global $user;
-
-
 
     $auth = new Authentication_FoafSSLDelegate(false);
 
@@ -134,6 +163,9 @@ function webidauth_authentication_page()
 }
 
 
+/**
+ * Menu callback; Add a WebID identity for the specified user.
+ */
 function admin_webidauth_user_add()
 {
     $form['webidauth_identifier'] = array('#type' => 'textfield', '#title' => t('WebID FOAF-Profile URL'), );
@@ -142,6 +174,13 @@ function admin_webidauth_user_add()
     return $form;
 }
 
+/**
+ * submit hook for the admin_webidauth_user_add form
+ * 
+ * @param mixed $form
+ * @param mixed $form_state
+ * @return
+ */
 function admin_webidauth_user_add_submit($form, &$form_state)
 {
     $return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => true));
@@ -189,6 +228,9 @@ function webidauth_user_add()
 }
 
 
+/**
+ * submit hook for the webidauth_user_add form
+ */
 function webidauth_user_add_submit($form, &$form_state)
 {
     $return_to = url('user/' . arg(1) . '/webidauth/add', array('absolute' => true));
@@ -223,6 +265,9 @@ function webidauth_user_delete_form($form, $form_state, $account, $wid = 0)
         '/webidauth');
 }
 
+/**
+ * submit hook for the webidauth_user_delete form
+ */
 function webidauth_user_delete_form_submit($form, &$form_state)
 {
 

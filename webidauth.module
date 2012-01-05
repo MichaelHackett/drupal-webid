@@ -1,11 +1,61 @@
 <?php
 
+/**
+ *     
+ * @copyright 
+ *     WebIDauth - WebID authentication module for Drupal
+ *     Copyright (C) 2012  mEducator Best Practice Network
+ * @license 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @author 
+ *      Lazaros Ioannidis 
+ *      Charalampos Bratsas
+ *      Dimitris Spachos 
+ * 
+ */
+
+
+
+/**
+ * @file
+ * Implement WebID authentication support for Drupal
+ */
+
+if (module_exists('libraries')) {
+    define('RDF_ARC2_PATH', libraries_get_path('ARC2') . '/arc');
+    define('GRAPHITE_RDF_PATH', libraries_get_path('Graphite'));
+    define('AUTHENTICATION_LIBRARY_PATH', libraries_get_path('libAuthentication'));
+} 
+if (!class_exists('ARC2')) {
+    @include_once RDF_ARC2_PATH . '/ARC2.php';
+    if (!class_exists('Graphite')) {
+        @include_once GRAPHITE_RDF_PATH . '/Graphite.php';
+    }
+}
+if (!class_exists('Authentication_FoafSSLDelegate') && file_exists(AUTHENTICATION_LIBRARY_PATH .
+        '/lib/Authentication.php')) {
+        @include_once AUTHENTICATION_LIBRARY_PATH . '/lib/Authentication.php';
+}
+//Include the WebID foaf parser
 module_load_include('inc', 'webidauth', 'webidauth.parser');
 
 
+/**
+ * Implements hook_menu()
+ */
 function webidauth_menu()
 {
-
     $items['user/%user/webidauth'] = array('title' => 'WebID identities',
         'page callback' => 'webidauth_user_identities', 'page arguments' => array(1),
         'access callback' => 'user_edit_access', 'access arguments' => array(1), 'type' =>
@@ -13,18 +63,19 @@ function webidauth_menu()
     $items['user/%user/webidauth/delete'] = array('title' => 'Delete WebID',
         'page callback' => 'drupal_get_form', 'page arguments' => array('webidauth_user_delete_form',
         1), 'access callback' => 'user_edit_access', 'access arguments' => array(1),
-        'file' => 'webidauth.pages.inc',);
-    $items['user/%user/webidauth/add'] = array('title' => 'WebID Login', 'page callback' =>
-        'webidauth_add_page', 'access callback' => 'user_edit_access', 'type' =>
-        MENU_CALLBACK, 'file' => 'webidauth.pages.inc', 'access arguments' => array(1),'page arguments' => array(1), );
+        'file' => 'webidauth.pages.inc', );
+    $items['user/%user/webidauth/add'] = array('title' => 'WebID Login',
+        'page callback' => 'webidauth_add_page', 'access callback' => 'user_edit_access',
+        'type' => MENU_CALLBACK, 'file' => 'webidauth.pages.inc', 'access arguments' =>
+        array(1), 'page arguments' => array(1), );
     $items['admin/config/people/webidauth'] = array('title' => t('WebID settings'),
         'description' => t('Configure how users are authenticated by WebID.'),
         'page callback' => 'drupal_get_form', 'page arguments' => array('webidauth_admin'),
         'access arguments' => array('access administration pages'), 'type' =>
         MENU_NORMAL_ITEM, );
-    $items['webidauth/authenticate'] = array('title' => 'WebID Login', 'page callback' =>
-        'webidauth_authentication_page', 'access callback' => 'user_is_anonymous', 'type' =>
-        MENU_CALLBACK, 'file' => 'webidauth.pages.inc', );
+    $items['webidauth/authenticate'] = array('title' => 'WebID Login',
+        'page callback' => 'webidauth_authentication_page', 'access callback' =>
+        'user_is_anonymous', 'type' => MENU_CALLBACK, 'file' => 'webidauth.pages.inc', );
     return $items;
 }
 
@@ -59,23 +110,22 @@ function webidauth_help($path, $arg)
     switch ($path) {
         case 'user/%/webidauth':
             $output = '<p>' . t('This site supports <a href="@webid-net">WebID</a>, a secure way to log in to many websites using a single client-certificate. WebID can reduce the necessity of managing many usernames and passwords for many websites.',
-                array('@webid-net' => 'http://webid.net')) . '</p>';
-            $output .= '<p>' . t('To use WebID you must first establish an identity on a public or private WebID server. If you do not have an WebID and would like one, look into one of the <a href="@webid-providers">free public providers</a>. You can find out more about WebID at <a href="@webid-net">this website</a>.',
-                array('@webid-providers' => 'http://webid.net/get/', '@webid-net' =>
-                'http://webid.net')) . '</p>';
-            $output .= '<p>' . t('If you already have an WebID, enter the URL to your WebID server below (e.g. myusername.webidprovider.com). Next time you log in, you will be able to use this URL instead of a regular username and password. You can have multiple WebID servers if you like; just keep adding them here.') .
+                array('@webid-net' => 'http://www.w3.org/2005/Incubator/webid/spec/')) . '</p>';
+            $output .= '<p>' . t('To use WebID you must first establish an identity on a public or private WebID server.')
+                .'</p>';
+            $output .= '<p>' . t('If you already have an WebID, enter the URL to your WebID foaf-profile below (e.g. http://webid.fcns.eu/people/yourname/foaf.txt#me). Next time you log in, you will be able to use the certificate installed in your browser instead of a regular username and password. You can have multiple WebID identities if you like; just keep adding them here.') .
                 '</p>';
             return $output;
         case 'admin/help#webidauth':
             $output = '';
             $output .= '<h3>' . t('About') . '</h3>';
-            $output .= '<p>' . t('The WebID module allows users to log in using the WebID single sign on service. <a href="@webid-net">WebID</a> is a secure method for logging into many websites with a single username and password. It does not require special software, and it does not share passwords with any site to which it is associated, including the site being logged into. The main benefit to users is that they can have a single password that they can use on many websites. This means they can easily update their single password from a centralized location, rather than having to change dozens of passwords individually. For more information, see the online handbook entry for <a href="@handbook">WebID module</a>.',
-                array('@webid-net' => 'http://webid.net', '@handbook' =>
-                'http://drupal.org/handbook/modules/webid')) . '</p>';
+            $output .= '<p>' . t('The WebID module allows users to log in using the WebID single sign on service. <a href="@webid-net">WebID</a> is a secure method for logging into many websites with a single client certificate, installed in their browsers. It does not share passwords with any site to which it is associated, including the site being logged into. The main benefit to users is that they can have a single certificate that they can use on many websites. For more information, see the online handbook entry for <a href="@handbook">WebID module</a>.',
+                array('@webid-net' => 'http://www.w3.org/2005/Incubator/webid/spec/', '@handbook' =>
+                'http://drupal.org/handbook/modules/webidauth')) . '</p>';
             $output .= '<h3>' . t('Uses') . '</h3>';
             $output .= '<dl>';
             $output .= '<dt>' . t('Logging in with WebID') . '</dt>';
-            $output .= '<dd>' . t("To log in using WebID, a user must already have an WebID account. Users can then create site accounts using their WebID, assign one or more WebIDs to an existing account, and log in using an WebID. This lowers the barrier to registration, which helps increase the user base, and offers convenience and security to the users. Because WebID cannot guarantee a user is legitimate, email verification is still necessary. When logging in, users are presented with the option of entering their WebID URL, which will look like <em>myusername.webidprovider.com</em>. The site then communicates with the WebID server, asking it to verify the identity of the user. If the user is logged into their WebID server, the server communicates back to your site, verifying the user. If they are not logged in, the WebID server will ask the user for their password. At no point does the site being logged into record the user's WebID password.") .
+            $output .= '<dd>' . t("To log in using WebID, a user must already have an WebID certificate. Users can then create site accounts using their WebID, assign one or more WebIDs to an existing account, and log in using an WebID. This lowers the barrier to registration, which helps increase the user base, and offers convenience and security to the users. Because WebID cannot guarantee a user is legitimate, email verification is still necessary. When logging in, users are presented with a browser dialog window to select their WebID certificate. The site then communicates with the WebID server, asking it to verify the identity of the user. If the user is logged into their WebID server, the server communicates back to your site, verifying the user.") .
                 '</dd>';
             $output .= '</dl>';
             return $output;
@@ -97,50 +147,23 @@ function webidauth_user_insert(&$edit, $account, $category)
         $modulus = $foaf->getCertificateModulus();
 
         _webidauth_save($modulus, $_SESSION['foaf'], $account->uid);
-
-
     }
 }
 
 
+/**
+ * Implements hook_user_delete().
+ */
 function webidauth_user_delete($account)
 {
-
     db_delete('webidauth')->condition('uid', $account->uid)->execute();
-
 }
 
-
-/**
- * Implements hook_user_login().
- *
- * Save webid_identifier to visitor cookie.
- */
-function webidauth_user_login(&$edit, $account)
-{
-    if (isset($_SESSION['foaf'])) {
-        // The user has logged in via WebID.
-        //user_cookie_save(array_intersect_key($_SESSION['foaf'], array_flip(array('webid_identifier'))));
-        unset($_SESSION['foaf']);
-    }
-}
-
-/**
- * Implements hook_user_logout().
- *
- * Delete any webid_identifier in visitor cookie.
- */
-function webidauth_user_logout($account)
-{
-
-    if (isset($_COOKIE['Drupal_visitor_webidauth_identifier'])) {
-        user_cookie_delete('webidauth_identifier');
-    }
-}
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+
 function webidauth_form_user_login_block_alter(&$form, &$form_state)
 {
     _webidauth_user_login_form_alter($form, $form_state);
@@ -154,9 +177,11 @@ function webidauth_form_user_login_alter(&$form, &$form_state)
     _webidauth_user_login_form_alter($form, $form_state);
 }
 
+/**
+ * _webidauth_user_login_form_alter()
+ */
 function _webidauth_user_login_form_alter(&$form, &$form_state)
 {
-
     $form['#attached']['css'][] = drupal_get_path('module', 'webidauth') .
         '/webidauth.css';
     $form['#attached']['js'][] = drupal_get_path('module', 'webidauth') .
@@ -166,8 +191,8 @@ function _webidauth_user_login_form_alter(&$form, &$form_state)
     global $base_url;
     $items = array();
     $items[] = array('data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server',
-        'https://auth.local:8080/') . '?authreqissuer=' . $base_url . "/?q=webidauth/authenticate", array('external' => true)),
-        'class' => array('webidauth-link'), );
+        'https://auth.local:8080/') . '?authreqissuer=' . $base_url .
+        "/?q=webidauth/authenticate", array('external' => true)), 'class' => array('webidauth-link'), );
 
     $items[] = array('data' => l(t('Cancel WebID login'), '#', array('external' => true)),
         'class' => array('user-link'), );
@@ -180,11 +205,12 @@ function _webidauth_user_login_form_alter(&$form, &$form_state)
 
     $form['webidauth.return_to'] = array('#type' => 'hidden', '#value' => url('webidauth/authenticate',
         array('absolute' => true, 'query' => user_login_destination())));
-
-
 }
 
 
+/**
+ * Implements hook_admin()
+ */
 function webidauth_admin()
 {
     $form = array();
@@ -199,31 +225,42 @@ function webidauth_admin()
 }
 
 
+/**
+ * webidauth admin form validate hook
+ * 
+ * @param mixed $form
+ * @param mixed $form_state
+ * @return
+ */
 function webidauth_admin_validate($form, &$form_state)
 {
-
     $webiduri = $form_state['values']['webidauth_auth_server_uri'];
 
     if (valid_url($webiduri, true) === false)
         form_set_error('webidauth_auth_server_uri', t('You must enter a valid URI.'));
 }
 
+/**
+ * webidauth admin form submit hook
+ * 
+ * @param mixed $form
+ * @param mixed $form_state
+ * @return
+ */
 function webidauth_admin_submit($form, &$form_state)
 {
-
-
     if (valid_url($form_state['values']['webidauth_auth_server_uri'])) {
         variable_set('webidauth_auth_server', $form_state['values']['webidauth_auth_server_uri']);
 
         drupal_set_message(t('Your configuration has been saved.'));
     }
-
 }
 
+/**
+ * Implements hook_user_view_alter()
+ */
 function webidauth_user_view_alter(&$build)
 {
-
-
     $edited_user = $build['#account'];
 
     $user_data = db_select('webidauth', 'w');
@@ -239,13 +276,12 @@ function webidauth_user_view_alter(&$build)
     $img = $foaf->getImage();
     if ($build["user_picture"]["#markup"] === '')
         $build["user_picture"]["#markup"] = t('<img height="100" src="' . $img . '"/>');
-
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  *
- * Prefills the login form with values acquired via WebID.
+ * Fills the user profile form with values acquired via WebID.
  */
 function webidauth_form_user_profile_form_alter(&$form, &$form_state)
 {
@@ -257,7 +293,6 @@ function webidauth_form_user_profile_form_alter(&$form, &$form_state)
 
     $user_data->fields('w', array('uri'))->condition('w.uid', $edited_user->uid, '=');
 
-
     $user_obj = $user_data->execute()->fetchObject();
     if ($user_obj !== false) {
 
@@ -268,12 +303,17 @@ function webidauth_form_user_profile_form_alter(&$form, &$form_state)
         $form['account']['picture']['#markup'] = t('<img height="100" src="' . $img .
             '"/>');
     }
-
 }
 
+/**
+ * webidauth admin user register form validate hook
+ * 
+ * @param mixed $form
+ * @param mixed $form_state
+ * @return
+ */
 function webidauth_admin_user_register_validate(&$form, &$form_state)
 {
-
     if (user_access('administer users') !== true)
         return;
 
@@ -299,11 +339,16 @@ function webidauth_admin_user_register_validate(&$form, &$form_state)
             form_set_error('foaf_uri', t('The claimed WebID is already used by another user. Please
              review user <a href="user/' . $u->uid . '/webidauth/">' . $u->name .
                 '</a> before continuing.'));
-
     }
-
 }
 
+/**
+ * webidauth admin user register form submit hook
+ * 
+ * @param mixed $form
+ * @param mixed $form_state
+ * @return
+ */
 function webidauth_admin_user_register_submit(&$form, &$form_state)
 {
     user_register_submit($form, $form_state);
@@ -313,9 +358,7 @@ function webidauth_admin_user_register_submit(&$form, &$form_state)
         $foaf = new FoafParser($uri);
         $modulus = $foaf->getCertificateModulus();
         _webidauth_save($modulus, $uri, $uid);
-
     }
-
 }
 
 /**
@@ -325,7 +368,6 @@ function webidauth_admin_user_register_submit(&$form, &$form_state)
  */
 function webidauth_form_user_register_form_alter(&$form, &$form_state)
 {
-
     if (isset($_SESSION['foaf'])) {
 
         $uri = $_SESSION['foaf'];
@@ -376,8 +418,6 @@ function webidauth_form_user_register_form_alter(&$form, &$form_state)
         $form['webidauth_display'] = array('#type' => 'item', '#title' => t('Your WebID'),
             '#description' => t('This WebID will be attached to your account after registration.'),
             '#markup' => check_plain($uri), );
-
-
     } else {
         if (user_access('administer users') !== true)
             return;
@@ -387,56 +427,70 @@ function webidauth_form_user_register_form_alter(&$form, &$form_state)
         $form['#validate'][] = 'webidauth_admin_user_register_validate';
         $form['#submit'] = array('webidauth_admin_user_register_submit'); //override the default submit
     }
-
 }
 
 
 
-
-// Implements hook_init
+/**
+ * webidauth_init()
+ * Implements hook_init
+ * @return
+ */
 function webidauth_init()
-{  
+{
+    //UGLY JS HACK: always destroy the authentication session, to allow login / logout functionality
     drupal_add_js(drupal_get_path('module', 'webidauth') . '/tls_logout.js');
-
-
 }
 
 // Implements hook_libraries_info
+/**
+ * webidauth_libraries_info()
+ * 
+ * @return
+ */
 function webidauth_libraries_info()
 {
-
-    $libraries['libAuthentication'] = array('name' => 'libAuthentication library', 'vendor url' =>
-        'https://github.com/melvincarvalho/libAuthentication', 
+    $libraries['libAuthentication'] = array('name' => 'libAuthentication library',
+        'vendor url' => 'https://github.com/melvincarvalho/libAuthentication',
         'download url' => 'https://github.com/melvincarvalho/libAuthentication/zipball/master',
         'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
         'lines' => 5, ), 'files' => array('php' => array('lib/Authentication.php'), ), );
     $libraries['Graphite'] = array('name' => 'Graphite library', 'vendor url' =>
-        'http://graphite.ecs.soton.ac.uk/', 
-        'download url' => 'http://graphite.ecs.soton.ac.uk/download.php/Graphite_and_ARC2.tgz',
+        'http://graphite.ecs.soton.ac.uk/', 'download url' =>
+        'http://graphite.ecs.soton.ac.uk/download.php/Graphite_and_ARC2.tgz',
         'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
         'lines' => 5, ), 'files' => array('php' => array('Graphite.php'), ), );
     $libraries['ARC2'] = array('name' => 'ARC RDF Classes for PHP ', 'vendor url' =>
-        'https://github.com/semsol/arc2', 
-        'download url' => 'https://github.com/semsol/arc2/zipball/master',
-        'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
-        'lines' => 5, ), 'files' => array('php' => array('arc/ARC2.php'), ), );
+        'https://github.com/semsol/arc2', 'download url' =>
+        'https://github.com/semsol/arc2/zipball/master', 'version arguments' => array('file' =>
+        'readme.txt', 'pattern' => '/Version (\d+)/', 'lines' => 5, ), 'files' => array
+        ('php' => array('arc/ARC2.php'), ), );
     return $libraries;
-
-
 }
 
-//saves a webid and associates it to the owning user
+
+/**
+ * _webidauth_save()
+ * saves a webid and associates it to the owning user
+ * @param mixed $modulus The modulus of the webid
+ * @param mixed $uri The uri containing the foaf profile
+ * @param mixed $uid The user that the webid willl be associated with
+ * @return
+ */
 function _webidauth_save($modulus, $uri, $uid)
 {
     db_insert('webidauth')->fields(array('modulus' => $modulus, 'uri' => $uri, 'uid' =>
         $uid, ))->execute();
     $account = user_load($uid);
     user_set_authmaps($account, array('authname_webidauth' => $account->name));
-
 }
 
-
-//checks if a webid is assigned to a user and returns the user
+/**
+ * _webidauth_exists()
+ * checks if a webid is assigned to a user and returns the user
+ * @param mixed $claimed_modulus
+ * @return false if no user found, the user object otherwise
+ */
 function _webidauth_exists($claimed_modulus)
 {
     $user_data = db_select('webidauth', 'w');
@@ -451,6 +505,4 @@ function _webidauth_exists($claimed_modulus)
         return $user_obj;
     } else
         return false;
-
-
 }

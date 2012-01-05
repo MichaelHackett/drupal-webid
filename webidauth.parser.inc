@@ -1,21 +1,39 @@
 <?php
-if (module_exists('libraries')) {
-    define('RDF_ARC2_PATH', libraries_get_path('ARC2') . '/arc');
-    define('GRAPHITE_RDF_PATH',libraries_get_path('Graphite'))       ;
-} else {
-    define('RDF_ARC2_PATH', drupal_get_path('module', 'webidauth') . '/vendor/arc');
-}
-  if (!class_exists('ARC2')) {
-    @include_once RDF_ARC2_PATH . '/ARC2.php';
-    @include_once GRAPHITE_RDF_PATH . '/Graphite.php';
-  }
 
 /**
- * @author Larry
- * @copyright 2011
+ *     
+ * @copyright 
+ *     WebIDauth - WebID authentication module for Drupal
+ *     Copyright (C) 2012  mEducator Best Practice Network
+ * @license 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @author 
+ *      Lazaros Ioannidis 
+ *      Charalampos Bratsas
+ *      Dimitris Spachos 
+ * 
  */
+
+
 class FoafParser
 {
+    /**
+     * FoafParser::__construct()
+     * Constructs a new instance of the FoafParser class
+     * @param mixed $uri
+     * @return
+     */
     public function __construct($uri)
     {
         $this->graphite = new Graphite();
@@ -28,21 +46,41 @@ class FoafParser
     static private $graphite;
     private $uri;
 
+    /**
+     * FoafParser::getName()
+     * Returns the name of the person described in the foaf profile
+     * @return
+     */
     public function getName()
     {
         return (string )$this->graphite->resource($this->uri)->get("foaf:name");
     }
 
+    /**
+     * FoafParser::getImage()
+     * Returns the image url of the person described in the foaf profile
+     * @return
+     */
     public function getImage()
     {
         return (string )$this->graphite->resource($this->uri)->get("foaf:img");
     }
 
+    /**
+     * FoafParser::getMailbox()
+     * Returns the email address of the person described in the foaf profile
+     * @return
+     */
     public function getMailbox()
     {
         return (string )$this->graphite->resource($this->uri)->get("foaf:mbox");
     }
 
+    /**
+     * FoafParser::getCertificateModulus()
+     * Returns the certificate modulus of the foaf profile
+     * @return
+     */
     public function getCertificateModulus()
     {
         //$this->graphite->ns("cert", "http://www.w3.org/ns/auth/cert#");
@@ -57,6 +95,11 @@ class FoafParser
 
     }
     
+    /**
+     * FoafParser::getCertificates()
+     * Returns the moduli of the certificates in the foaf profile
+     * @return
+     */
     public function getCertificates(){
         foreach ($this->graphite->allOfType('cert:RSAPublicKey') as $certs) {
             $hex[] = $certs->get('cert:modulus');

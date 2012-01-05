@@ -1,12 +1,41 @@
 <?php
 
-/**
- * @file
- * Install, update and uninstall functions for the webid module.
- */
 
 /**
- * Implements hook_schema().
+ *     
+ * @copyright 
+ *     WebIDauth - WebID authentication module for Drupal
+ *     Copyright (C) 2012  mEducator Best Practice Network
+ * @license 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @author 
+ *      Lazaros Ioannidis 
+ *      Charalampos Bratsas
+ *      Dimitris Spachos 
+ * 
+ */
+
+
+/**
+ * @file
+ * Install, update and uninstall functions for the webidauth module.
+ */
+
+
+/**
+ * webidauth_schema()
+ * Implements hook_schema()
  */
 function webidauth_schema() {
 
@@ -14,7 +43,7 @@ function webidauth_schema() {
       'description' => 'Stores the asociations between users and WebIDs.' ,
       'fields' => array(
       	'wid' => array(
-            'type' => 'int',
+            'type' => 'serial',
             'not null' => TRUE,
             'description' => 'Primary key: Unique identifier for a WebID asociation',
       	  ),
@@ -39,14 +68,9 @@ function webidauth_schema() {
             'description' => 'The uid of the user asociated with the WebID',
            ),
 
-         'created' => array(
-            'type' => 'timestamp',
-            'not null' => TRUE,
-            'description' => 'A timestamp of the asociation creation',
-           ),
       ),
       'primary key' => array('wid'),
-      'unique keys' => array('modulus'),
+      
 
 
 
@@ -55,35 +79,50 @@ function webidauth_schema() {
   return $schema;
 }
 
+
+/**
+* Implements hook_install().
+*/
+function webidauth_install() {
+  drupal_set_message(st("Webidauth settings are available under !link",
+    array( '!link' => l('Configuration > People > WebID settings ',  'admin/config/people/webidauth' ) )
+  ));
+}
+
+
 /**
  * Implements hook_requirements().
  */
-function webid_requirements($phase) {
+function webidauth_requirements($phase) {
   $requirements = array();
 
   if ($phase == 'runtime') {
-    // Check for the PHP BC Math library.
-    if (!function_exists('bcadd') && !function_exists('gmp_add')) {
-      $requirements['webid_math'] = array(
+
+    if (!class_exists('Authentication_FoafSSLDelegate')) {
+      $requirements['webid_libAuthentication'] = array(
         'value' => t('Not installed'),
         'severity' => REQUIREMENT_ERROR,
-        'description' => t('WebID suggests the use of either the <a href="@gmp">GMP Math</a> (recommended for performance) or <a href="@bc">BC Math</a> libraries to enable WebID associations.', array('@gmp' => 'http://php.net/manual/en/book.gmp.php', '@bc' => 'http://www.php.net/manual/en/book.bc.php')),
+        'description' => t('WebIDauth requires the use of the <a href="@libauth">libAuthentication library</a>.', array('@libauth' => 'https://github.com/WebIDauth/libAuthentication')),
+        'title'=>t('libAuthentication library')
       );
     }
-    elseif (!function_exists('gmp_add')) {
-      $requirements['webid_math'] = array(
-        'value' => t('Not optimized'),
-        'severity' => REQUIREMENT_WARNING,
-        'description' => t('WebID suggests the use of the GMP Math library for PHP for optimal performance. Check the <a href="@url">GMP Math Library documentation</a> for installation instructions.', array('@url' => 'http://www.php.net/manual/en/book.gmp.php')),
+    if (!class_exists('ARC2')) {
+      $requirements['webid_ARC2'] = array(
+        'value' => t('Not installed'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t('WebIDauth requires the use of the <a href="@arc">ARC library</a>.', array('@arc' => 'https://github.com/semsol/arc2/')),
+        'title'=>t('ARC library')
       );
     }
-    else {
-      $requirements['webid_math'] = array(
-        'value' => t('Installed'),
-        'severity' => REQUIREMENT_OK,
+    if (!class_exists('Graphite')) {
+      $requirements['webid_Graphite'] = array(
+        'value' => t('Not installed'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t('WebIDauth requires the use of the <a href="@graphite">Graphite RDF library</a>.', array('@graphite' => 'http://graphite.ecs.soton.ac.uk/')),
+        'title'=>t('Graphite RDF library')
       );
     }
-    $requirements['webid_math']['title'] = t('WebID Math library');
+
   }
 
   return $requirements;
