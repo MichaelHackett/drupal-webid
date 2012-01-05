@@ -4,7 +4,6 @@
   background-position: left 50%; /* LTR */
   background-repeat: no-repeat;
   padding-left: 30px; /* LTR */
-  background-size:contain;
 }
 div.form-item-webidauth-identifier {
   display: block;
