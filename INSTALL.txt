@@ -3,8 +3,10 @@ PREREQUISITES
 * Before using the WebIdauth module, please make sure you have a working installation of an 
 authentication service, like the one at https://auth.fcns.eu/auth/index.php
 To setup the service, you will need to create an SSL - enabled virtual host on your server 
-configuration and enable client certificate handling. For further information, 
-review the documentation in https://github.com/WebIDauth/WebIDauth
+configuration and enable client certificate handling. To get WebIDauth service up and running, 
+you will also need the public - private key pair of your WebID auth server. The private key path 
+should be accessible from WebIDauth service and configured in its index.php.  For further 
+information, review the documentation in https://github.com/WebIDauth/WebIDauth
 
 * Make sure you have the Libraries API (http://drupal.org/project/libraries) module installed 
 and have downloaded the following libraries:
@@ -18,6 +20,9 @@ and installed them in the /sites/all/libraries directory. The path to libAuthent
 .php should be sites/all/libraries/ARC2/arc/ARC2.php , per the rdfx module recommendation. 
 The path to
 graphite's  Graphite.php should be sites/all/libraries/Graphite/Graphite.php
+
+Please configure lib/Authentication_X509CertRepo.php to match your certificate pair, by 
+entering your public key.
 
 INSTALLATION
 ------------

@@ -37,7 +37,10 @@ graphite's  Graphite.php should be sites/all/libraries/Graphite/Graphite.php
 Dependency #5 requires a correctly configured https virtual host on your server. You can also 
 use an  already installed service, like the one in https://auth.fcns.eu/auth/index.php
 The WebIDauth service URL should be entered in the module's configuration, in 
-admin/config/people/webidauth
+admin/config/people/webidauth.
+
+Note: After installing WebIDauth and libAuthentication, you have to provide the public key of 
+your WebIDauth service to libAuthentication. For more information please read INSTALL.txt
 
 ABOUT
 -----
