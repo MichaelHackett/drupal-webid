@@ -38,7 +38,7 @@ class FoafParser
     {
         $this->graphite = new Graphite();
                 $this->graphite->ns("cert", "http://www.w3.org/ns/auth/cert#");
-
+                $this->graphite->ns("rsa", "http://www.w3.org/ns/auth/rsa#");
         $this->graphite->load($uri);
         $this->uri = $uri;
     }
@@ -84,11 +84,21 @@ class FoafParser
     public function getCertificateModulus()
     {
         //$this->graphite->ns("cert", "http://www.w3.org/ns/auth/cert#");
-        
+        $hex = array();
         foreach ($this->graphite->allOfType('cert:RSAPublicKey') as $certs) {
             $hex[] = $certs->get('cert:modulus');
      
             
+            }
+
+            if(empty($hex)){
+                     foreach ($this->graphite->allOfType('rsa:RSAPublicKey') as $certs) {
+            $hex[] = $certs->get('rsa:modulus');
+
+            
+            }
+
+
             }
         
         return trim($hex[0]);
