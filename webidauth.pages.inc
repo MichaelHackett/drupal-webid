@@ -134,7 +134,7 @@ function webidauth_authentication_page()
     if (user_is_logged_in())
         return;
 
-    if ($auth->isAuthenticated()) {
+    if ($auth->isAuthenticated()) {//successful WebID validation
         $uri = $_REQUEST['webid'];
         if ($uri) {
             $foaf = new FoafParser($uri);
@@ -148,10 +148,30 @@ function webidauth_authentication_page()
                 drupal_goto('<front>');
 
 
-            } else {
+            } else {//create the account with the username & email if they don't  exist, else go to register page
 
-                $_SESSION['foaf'] = $uri;
-                drupal_goto('user/register');
+                $existing_user_data = db_select('users', 'u');
+                $existing_user_data->fields('u', array('name'))->condition(db_or()->condition('u.name', trim($foaf->getName()),
+                    '=')->condition('u.mail', $email, '='));
+
+                $existing_user_obj = $existing_user_data->execute()->fetchObject();
+
+                if ($existing_user_obj !== false) {
+                    $_SESSION['foaf'] = $uri;
+                    drupal_goto('user/register');
+
+                }
+                else{
+                    
+                    user_external_login_register(trim($foaf->getName()), 'webidauth');
+                    if(user_is_logged_in()){
+                        _webid_save($claimed_modulus,$uri,$user->uid);
+                    
+                    }
+                    
+                }
+
+
 
 
             }

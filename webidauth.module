@@ -191,7 +191,7 @@ function _webidauth_user_login_form_alter(&$form, &$form_state)
     global $base_url;
     $items = array();
     $items[] = array('data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server',
-        'https://auth.local:8080/') . '?authreqissuer=' . $base_url .
+        'https://webid.math.auth.gr:8443/') . '?authreqissuer=' . $base_url .
         "/?q=webidauth/authenticate", array('external' => true)), 'class' => array('webidauth-link'), );
 
     $items[] = array('data' => l(t('Cancel WebID login'), '#', array('external' => true)),
@@ -217,7 +217,7 @@ function webidauth_admin()
 
     $form['webidauth_auth_server_uri'] = array('#type' => 'textfield', '#title' => t
         ('WebID authentication server URI'), '#default_value' => variable_get('webidauth_auth_server',
-        'https://auth.local:8080/'), '#size' => 32, '#description' => t("The address of the WebID authentication server."),
+        'https://webid.math.auth.gr:8443/'), '#size' => 32, '#description' => t("The address of the WebID authentication server."),
         '#required' => true, );
     $form['#submit'][] = 'webidauth_admin_submit';
     $form['#validate'][] = 'webidauth_admin_validate';
