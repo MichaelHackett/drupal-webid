@@ -76,7 +76,8 @@ function webidauth_add_page()
 {
 
     global $user;
-    $auth = new Authentication_FoafSSLDelegate(false);
+  $pubkey = array(variable_get('webidauth_auth_server_certificate', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
+  $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($pubkey));
     if (isset($_REQUEST['error'])) {
         if ($_REQUEST['error'] === 'noVerifiedWebId')
             drupal_set_message(t('The provided WebID could not be verified.'), 'error');
@@ -84,9 +85,7 @@ function webidauth_add_page()
     if ($auth->isAuthenticated()) {
         $uri = $_REQUEST['webid'];
         if ($uri) {
-            $foaf = new FoafParser($uri);
-            $claimed_modulus = $foaf->getCertificateModulus();
-            $u = _webidauth_exists($claimed_modulus);
+            $u = _webidauth_exists($uri);
             if ($u !== false) {
 
                 drupal_set_message(t('The claimed WebID is already used by another user. Please
@@ -97,9 +96,9 @@ function webidauth_add_page()
             } else {
 
 
-                _webidauth_save($claimed_modulus, $uri, $user->uid);
+                _webidauth_save( $uri, $user->uid);
 
-                drupal_set_message(t('The WebID was successfully asociated with your account.'));
+                drupal_set_message(t('The WebID was successfully associated with your account.'));
                 drupal_goto('user/' . $user->uid . '/webidauth/');
             }
 
@@ -118,14 +117,15 @@ function webidauth_authentication_page()
 {
 
     global $user;
+    $pubkey = array(variable_get('webidauth_auth_server_certificate', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
+    $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($pubkey));
 
-    $auth = new Authentication_FoafSSLDelegate(false);
-
-
+    
     if (isset($_REQUEST['error'])) {
-        if ($_REQUEST['error'] === 'noVerifiedWebId')
+        if ($_REQUEST['error'] === 'noVerifiedWebId' ||$_REQUEST['error']==='certNoOwnership' )
             drupal_set_message(t('The provided WebID cannot be verified successfully.'),
                 'error');
+                drupal_goto('<front>');
         return;
     }
 
@@ -139,24 +139,23 @@ function webidauth_authentication_page()
         if ($uri) {
             $foaf = new FoafParser($uri);
 
-            $claimed_modulus = $foaf->getCertificateModulus();
-
-            $u = _webidauth_exists($claimed_modulus);
+            $u = _webidauth_exists($uri);
             if ($u !== false) {
 
                 user_external_login_register(trim($u->name), 'webidauth');
                 drupal_goto('<front>');
 
 
-            } else {//create the account with the username & email if they don't  exist, else go to register page
+            } else {//create the account with the username & email if they don't already exist, else go to register page
 
                 $existing_user_data = db_select('users', 'u');
                 $existing_user_data->fields('u', array('name'))->condition(db_or()->condition('u.name', trim($foaf->getName()),
                     '=')->condition('u.mail', $email, '='));
 
                 $existing_user_obj = $existing_user_data->execute()->fetchObject();
-
-                if ($existing_user_obj !== false) {
+                if ($existing_user_obj !== false ||
+                     (trim($foaf->getName())== '' || trim($foaf->getMailbox())== '')
+                ) {
                     $_SESSION['foaf'] = $uri;
                     drupal_goto('user/register');
 
@@ -165,9 +164,11 @@ function webidauth_authentication_page()
                     
                     user_external_login_register(trim($foaf->getName()), 'webidauth');
                     if(user_is_logged_in()){
-                        _webid_save($claimed_modulus,$uri,$user->uid);
-                    
+                        _webidauth_save($uri,$user->uid);
+                        $user->mail = trim($foaf->getMailbox());
+                        user_save($user);
                     }
+                    drupal_goto('<front>');
                     
                 }
 
@@ -206,16 +207,9 @@ function admin_webidauth_user_add_submit($form, &$form_state)
     $return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => true));
     $uri = $form_state['values']['webidauth_identifier'];
     if ($uri) {
-        $foaf = new FoafParser($uri);
 
-        $certs = $foaf->getCertificates();
-        if (!isset($certs[0])) {
-            ////TODO: throw a message here
-            return;
 
-        }
-        $claimed_modulus = $foaf->getCertificateModulus();
-        $u = _webidauth_exists($claimed_modulus);
+        $u = _webidauth_exists($uri);
         if ($u !== false) {
             drupal_set_message(t('The claimed WebID is already used by another user. Please
              review user <a href="user/' . $u->uid . '/webidauth/">' . $u->name .
@@ -224,8 +218,8 @@ function admin_webidauth_user_add_submit($form, &$form_state)
         } else {
 
 
-            _webidauth_save($claimed_modulus, $uri, arg(1));
-            drupal_set_message(t('The WebID was successfully asociated with the selected account.'));
+            _webidauth_save($uri, arg(1));
+            drupal_set_message(t('The WebID was successfully associated with the selected account.'));
             drupal_goto('user/' . arg(1) . '/webidauth/');
         }
 

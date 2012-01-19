@@ -55,13 +55,6 @@ function webidauth_schema() {
                               foaf profile',
            ),
 
-         'modulus' => array(
-            'type' => 'varchar',
-            'length' => 512,
-            'not null' => TRUE,
-            'description' => 'The modulus stored in the foaf profile',
-           ),
-
          'uid' => array(
             'type' => 'int',
             'not null' => TRUE,
@@ -127,3 +120,13 @@ function webidauth_requirements($phase) {
 
   return $requirements;
 }
+
+
+
+
+
+function webidauth_update_7100(){
+   db_drop_field('webidauth','modulus');
+   return 'Removed redundant modulus field'; 
+    
+} 

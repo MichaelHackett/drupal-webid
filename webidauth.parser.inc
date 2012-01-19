@@ -53,7 +53,7 @@ class FoafParser
      */
     public function getName()
     {
-        return (string )$this->graphite->resource($this->uri)->get("foaf:name");
+        return (string )$this->graphite->resource($this->uri)->get("foaf:nick");
     }
 
     /**
@@ -73,52 +73,19 @@ class FoafParser
      */
     public function getMailbox()
     {
-        return (string )$this->graphite->resource($this->uri)->get("foaf:mbox");
-    }
-
-    /**
-     * FoafParser::getCertificateModulus()
-     * Returns the certificate modulus of the foaf profile
-     * @return
-     */
-    public function getCertificateModulus()
-    {
-        //$this->graphite->ns("cert", "http://www.w3.org/ns/auth/cert#");
-        $hex = array();
-        foreach ($this->graphite->allOfType('cert:RSAPublicKey') as $certs) {
-            $hex[] = $certs->get('cert:modulus');
-     
-            
-            }
-
-            if(empty($hex)){
-                     foreach ($this->graphite->allOfType('rsa:RSAPublicKey') as $certs) {
-            $hex[] = $certs->get('rsa:modulus');
-
-            
-            }
-
-
-            }
+        $prefix = 'mailto:';
+        $mbox = (string )$this->graphite->resource($this->uri)->get("foaf:mbox");
         
-        return trim($hex[0]);
+        if ($mbox=='[NULL]') return '';
 
-    }
-    
-    /**
-     * FoafParser::getCertificates()
-     * Returns the moduli of the certificates in the foaf profile
-     * @return
-     */
-    public function getCertificates(){
-        foreach ($this->graphite->allOfType('cert:RSAPublicKey') as $certs) {
-            $hex[] = $certs->get('cert:modulus');
-     
-            
-            }
-        return $hex;
+        if (substr($mbox, 0, strlen($prefix) ) == $prefix) {
+            $mbox = substr($mbox, strlen($prefix), strlen($mbox) );        
+        } 
         
+        
+        return $mbox ;
     }
+
 
 
 }
