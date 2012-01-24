@@ -107,7 +107,9 @@ function _webid_auth_access($uid_arg) {
     if ($uid_arg->uid === $user->uid)
         return TRUE;
     else
+      if(isset($uid_arg->uid) && isset($user->uid))
         return user_access('modify webidauth identities') && user_edit_access($uid_arg);
+      else return false;
     
     
 }
