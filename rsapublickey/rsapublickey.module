@@ -101,18 +101,17 @@ function rsapublickey_field_formatter_view($entity_type, $entity, $field, $insta
   switch ($display['type']) {
     case 'rsapublickey':
       foreach ($items as $delta => $item) {
-        $output  = '<div about="#cert" typeof="rsa:RSAPublicKey">';
-        $output .= '  <span rel="cert:identity" resource="#me"></span>';
-        $output .= '  <dl>';
-        $output .= '    <dt>Modulus (hexadecimal)</dt>';
-        $output .= '    <dd rel="rsa:modulus">';
-        $output .= '      <span property="cert:hex">﻿' . check_plain($item['modulus']) . '</span>';
-        $output .= '    </dd>';
-        $output .= '    <dt>Exponent (decimal)</dt>';
-        $output .= '    <dd rel="rsa:public_exponent">';
-        $output .= '      <span property="cert:decimal">' . check_plain($item['exponent']) . '</span>';
-        $output .= '    </dd>';
-        $output .= '  </dl>';
+        $output  = '<div about="#me">';
+        $output .= '  <div rel="cert:key">';
+        $output .= '    <div typeof="cert:RSAPublicKey">';
+        $output .= '      <dl>';
+        $output .= '        <dt>Modulus (hexadecimal)</dt>';
+        $output .= '        <dd property="cert:modulus" datatype="xsd:hexBinary">' . check_plain($item['modulus']) . '</dd>';
+        $output .= '        <dt>Exponent (decimal)</dt>';
+        $output .= '        <dd property="cert:exponent" datatype="xsd:integer">' . check_plain($item['exponent']) . '</dd>';
+        $output .= '      </dl>';
+        $output .= '    </div>';
+        $output .= '  </div>';
         $output .= '</div>';
 
         $element[$delta] = array('#markup' => $output);
