@@ -25,7 +25,6 @@ function rsapublickey_help($path, $arg) {
 function rsapublickey_rdf_namespaces() {
   return array(
     'cert'      => 'http://www.w3.org/ns/auth/cert#',
-    'rsa' => 'http://www.w3.org/ns/auth/rsa#',
   );
 }
 
