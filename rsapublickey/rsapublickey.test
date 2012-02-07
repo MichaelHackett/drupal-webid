@@ -92,7 +92,6 @@ d5 f4 22 8d 9e 1e 5d b6 41 ed d0 b6 1e 06 ce 73';
     // Display the entity.
     $entity = field_test_entity_test_load($id);
     $entity->content = field_attach_view($entity_type, $entity, 'full');
-    $this->content = drupal_render($entity->content);
     $this->assertRaw($modulus, 'Filtered tags are not displayed');
     $this->assertRaw($exponent, 'Filtered tags are not displayed');
   }
