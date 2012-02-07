@@ -78,20 +78,22 @@ dd 01 2f ae cd 06 2f 9b 3c 49 8a d8 04 2d 68 e3
 23 3e 1e 43 d3 26 89 5b 79 08 9c 97 9c 3f d3 93
 d5 f4 22 8d 9e 1e 5d b6 41 ed d0 b6 1e 06 ce 73';
     $exponent = '65537';
+    $expected_modulus = 'd1a0aaceec9d69edbc3a700ea65a07beddfb2bc8c62521cc1e0c0199861ab1c465ed0c87c63ae9a02e520d77bfedabaa5e80eae9b2dd13fddf67cec7c26217a579ad8808b575cbe22525758125181bbd11021931330798b90b2003e12099cfbd5a3dc6f316767631601b8ea1b2805859bf2cee3cda04d24cd2344346bb7aa96cac3907368f16868b006314098364f013632e9981ccb295fb9eedd80a0df9e9e8dd012faecd062f9b3c498ad8042d68e34e8244f4058a355c7db4f81c5d5457a59307a478b36c12f1f1e15d8270d31791959b160398496788fdbbd1d265584f23233e1e43d326895b79089c979c3fd393d5f4228d9e1e5db641edd0b61e06ce73';
     $edit = array(
       "{$this->field_name}[$langcode][0][modulus]" => $modulus,
       "{$this->field_name}[$langcode][0][exponent]" => $exponent,
     );
     $this->drupalPost(NULL, $edit, t('Save'));
-    preg_match('|test-entity/(\d+)/edit|', $this->url, $match);
+    preg_match('|test-entity/manage/(\d+)/edit|', $this->url, $match);
     $id = $match[1];
     $this->assertRaw(t('test_entity @id has been created.', array('@id' => $id)), t('Entity was created'));
 
     // Display the entity.
+    // Display the entity.
     $entity = field_test_entity_test_load($id);
-    $entity->content = field_attach_view($entity_type, $entity);
+    $entity->content = field_attach_view($entity_type, $entity, 'full');
     $this->content = drupal_render($entity->content);
-    $this->assertText($modulus, 'Filtered tags are not displayed');
-    $this->assertText($exponent, 'Filtered tags are not displayed');
+    $this->assertRaw($modulus, 'Filtered tags are not displayed');
+    $this->assertRaw($exponent, 'Filtered tags are not displayed');
   }
 }
