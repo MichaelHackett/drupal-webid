@@ -106,7 +106,7 @@ function rsapublickey_field_formatter_view($entity_type, $entity, $field, $insta
         $output .= '    <div typeof="cert:RSAPublicKey">';
         $output .= '      <dl>';
         $output .= '        <dt>Modulus (hexadecimal)</dt>';
-        $output .= '        <dd property="cert:modulus" datatype="xsd:hexBinary">' . check_plain($item['modulus']) . '</dd>';
+        $output .= '        <dd property="cert:modulus" datatype="xsd:hexBinary">' . preg_replace('/[^a-z0-9]/i', '', $item['modulus']) . '</dd>';
         $output .= '        <dt>Exponent (decimal)</dt>';
         $output .= '        <dd property="cert:exponent" datatype="xsd:integer">' . check_plain($item['exponent']) . '</dd>';
         $output .= '      </dl>';
