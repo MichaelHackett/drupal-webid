@@ -128,7 +128,7 @@ function rsapublickey_field_formatter_view($entity_type, $entity, $field, $insta
 function rsapublickey_field_widget_info() {
   return array(
     'rsapublickey' => array(
-      'label' => t('Text field'),
+      'label' => t('RSA public key field'),
       'field types' => array('rsapublickey'),
     ),
   );
@@ -141,7 +141,7 @@ function rsapublickey_field_widget_form(&$form, &$form_state, $field, $instance,
   $element['modulus'] = array(
     '#type' => 'textarea',
     '#default_value' => isset($items[$delta]['modulus']) ? $items[$delta]['modulus'] : '',
-    '#title' => t('Modulo'),
+    '#title' => t('Modulus'),
   );
   $element['exponent'] = array(
     '#type' => 'textfield',
