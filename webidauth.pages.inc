@@ -1,36 +1,19 @@
 <?php
 
 /**
- *     
- * @copyright 
+ * @copyright
  *     WebIDauth - WebID authentication module for Drupal
  *     Copyright (C) 2012  mEducator Best Practice Network
- * @license 
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
-
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
-
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * @author 
- *      Lazaros Ioannidis 
+ * @author
+ *      Lazaros Ioannidis
  *      Charalampos Bratsas
- *      Dimitris Spachos 
- * 
+ *      Dimitris Spachos
  */
-
 
 /**
  * @file
  * WebID authentication module supporting pages
  */
-
 
 /**
  * Menu callback; Manage WebID identities for the specified user.
@@ -69,7 +52,7 @@ function webidauth_user_identities($account)
 
 /**
  * Menu callback; Add a WebID identity for the logged in user.
- * 
+ *
  * @return
  */
 function webidauth_add_page()
@@ -110,7 +93,7 @@ function webidauth_add_page()
 
 /**
  * Menu callback; Authenticate with a  WebID identity for the logged in user.
- * 
+ *
  * @return
  */
 function webidauth_authentication_page()
@@ -120,7 +103,7 @@ function webidauth_authentication_page()
     $pubkey = array(variable_get('webidauth_auth_server_certificate', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
     $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($pubkey));
 
-    
+
     if (isset($_REQUEST['error'])) {
         if ($_REQUEST['error'] === 'noVerifiedWebId' ||$_REQUEST['error']==='certNoOwnership' )
             drupal_set_message(t('The provided WebID cannot be verified successfully.'),
@@ -161,7 +144,7 @@ function webidauth_authentication_page()
 
                 }
                 else{
-                    
+
                     user_external_login_register(trim($foaf->getName()), 'webidauth');
                     if(user_is_logged_in()){
                         _webidauth_save($uri,$user->uid);
@@ -169,7 +152,7 @@ function webidauth_authentication_page()
                         user_save($user);
                     }
                     drupal_goto('<front>');
-                    
+
                 }
 
 
@@ -197,7 +180,7 @@ function admin_webidauth_user_add()
 
 /**
  * submit hook for the admin_webidauth_user_add form
- * 
+ *
  * @param mixed $form
  * @param mixed $form_state
  * @return

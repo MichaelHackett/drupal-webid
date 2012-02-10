@@ -1,37 +1,19 @@
 <?php
 
-
 /**
- *     
- * @copyright 
+ * @copyright
  *     WebIDauth - WebID authentication module for Drupal
  *     Copyright (C) 2012  mEducator Best Practice Network
- * @license 
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
-
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
-
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * @author 
- *      Lazaros Ioannidis 
+ * @author
+ *      Lazaros Ioannidis
  *      Charalampos Bratsas
- *      Dimitris Spachos 
- * 
+ *      Dimitris Spachos
  */
-
 
 /**
  * @file
  * Install, update and uninstall functions for the webidauth module.
  */
-
 
 /**
  * webidauth_schema()
@@ -63,7 +45,7 @@ function webidauth_schema() {
 
       ),
       'primary key' => array('wid'),
-      
+
 
 
 
@@ -127,6 +109,6 @@ function webidauth_requirements($phase) {
 
 function webidauth_update_7100(){
    db_drop_field('webidauth','modulus');
-   return 'Removed redundant modulus field'; 
-    
-} 
+   return 'Removed redundant modulus field';
+
+}
