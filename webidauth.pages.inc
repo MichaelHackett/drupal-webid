@@ -124,13 +124,10 @@ function webidauth_authentication_page()
 
             $u = _webidauth_exists($uri);
             if ($u !== false) {
-
                 user_external_login_register(trim($u->name), 'webidauth');
                 drupal_goto('<front>');
 
-
             } else {//create the account with the username & email if they don't already exist, else go to register page
-
                 $existing_user_data = db_select('users', 'u');
                 $existing_user_data->fields('u', array('name'))->condition(db_or()->condition('u.name', trim($foaf->getName()),
                     '=')->condition('u.mail', $email, '='));
@@ -141,10 +138,8 @@ function webidauth_authentication_page()
                 ) {
                     $_SESSION['foaf'] = $uri;
                     drupal_goto('user/register');
-
                 }
                 else{
-
                     user_external_login_register(trim($foaf->getName()), 'webidauth');
                     if(user_is_logged_in()){
                         _webidauth_save($uri,$user->uid);
@@ -152,18 +147,15 @@ function webidauth_authentication_page()
                         user_save($user);
                     }
                     drupal_goto('<front>');
-
                 }
-
-
-
-
             }
-
         }
-
     }
-
+    else {
+      // Authentification failed, provide error message for diagnostic.
+      drupal_set_message('WebID authentification failed: ' . $auth->authnDiagnostic, 'error');
+      return '';
+    }
 }
 
 
