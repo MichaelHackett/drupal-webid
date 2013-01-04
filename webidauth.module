@@ -445,16 +445,17 @@ function webidauth_form_user_register_form_alter(&$form, &$form_state) {
          afterwards, to be able to login both ways.'), );
         }
 
-        $form['foaf_image'] = array('#weight' => -10, '#markup' => t('<img height="100" src="' .
-            $img . '"/>'), );
-        if (!empty($username)) {
+        if (!empty($img) && $img != '[NULL]') {
+          $form['foaf_image'] = array('#weight' => -10, '#markup' => t('<img height="100" src="' . $img . '"/>'), );
+        }
 
+        if (!empty($username) && $username != '[NULL]') {
             $form['account']['name']['#default_value'] = $username;
         } else {
             $form['account']['name']['#default_value'] = '';
         }
 
-        if (!empty($email)) {
+        if (!empty($email) && $email != '[NULL]') {
             // Use the email returned by Simple Registration if available.
             $form['account']['mail']['#default_value'] = $email;
         }
