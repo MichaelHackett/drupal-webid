@@ -254,7 +254,7 @@ function webidauth_admin() {
         '#required' => TRUE, );
     $form['webidauth_auth_server_cert'] =  array('#type' => 'textarea', '#title' => t
         ('WebID authentication server public certificate'), '#default_value' => variable_get('webidauth_auth_server_certificate',
-        DEFAULT_WEBID_VALIDATOR_CERTIFICATE), '#size' => 32, '#description' => t("The public certificate of the WebID authentication server."),
+        DEFAULT_WEBID_VALIDATOR_CERTIFICATE), '#rows' => 20, '#description' => t("The public certificate of the WebID authentication server."),
         '#required' => TRUE, );
     $form['#submit'][] = 'webidauth_admin_submit';
     $form['#validate'][] = 'webidauth_admin_validate';
