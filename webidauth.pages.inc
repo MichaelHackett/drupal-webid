@@ -98,11 +98,15 @@ function webidauth_add_page()
  */
 function webidauth_authentication_page()
 {
-
     global $user;
-    $pubkey = array(variable_get('webidauth_auth_server_cert', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
-    $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($pubkey));
 
+    // Package the certificate defined on the site so that it can be sent to
+    // Authentication_X509CertRepo.
+    $referer_host = Authentication_URL::parse(variable_get('webidauth_auth_server_uri'))->host;
+    $cert_repo = array($referer_host => variable_get('webidauth_auth_server_cert', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
+
+    // Instantiate Authentication_FoafSSLDelegate() with our custom certificate.
+    $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($cert_repo));
 
     if (isset($_REQUEST['error'])) {
         if ($_REQUEST['error'] === 'noVerifiedWebId' ||$_REQUEST['error']==='certNoOwnership' )
