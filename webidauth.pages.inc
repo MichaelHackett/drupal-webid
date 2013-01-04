@@ -134,7 +134,7 @@ function webidauth_authentication_page()
             } else {//create the account with the username & email if they don't already exist, else go to register page
                 $existing_user_data = db_select('users', 'u');
                 $existing_user_data->fields('u', array('name'))->condition(db_or()->condition('u.name', trim($foaf->getName()),
-                    '=')->condition('u.mail', $email, '='));
+                    '=')->condition('u.mail', $foaf->getMailbox(), '='));
 
                 $existing_user_obj = $existing_user_data->execute()->fetchObject();
                 if ($existing_user_obj !== false ||
