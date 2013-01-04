@@ -59,7 +59,7 @@ function webidauth_add_page()
 {
 
     global $user;
-  $pubkey = array(variable_get('webidauth_auth_server_certificate', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
+  $pubkey = array(variable_get('webidauth_auth_server_cert', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
   $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($pubkey));
     if (isset($_REQUEST['error'])) {
         if ($_REQUEST['error'] === 'noVerifiedWebId')
@@ -100,7 +100,7 @@ function webidauth_authentication_page()
 {
 
     global $user;
-    $pubkey = array(variable_get('webidauth_auth_server_certificate', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
+    $pubkey = array(variable_get('webidauth_auth_server_cert', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
     $auth = new Authentication_FoafSSLDelegate(false,NULL,NULL,new Authentication_X509CertRepo($pubkey));
 
 
