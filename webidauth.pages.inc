@@ -234,7 +234,7 @@ function webidauth_user_add_submit($form, &$form_state)
     //$return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => true));
 
     global $base_url;
-    drupal_goto(variable_get('webidauth_auth_server') . '?authreqissuer=' . $return_to);
+    drupal_goto(variable_get('webidauth_auth_server_uri') . '?authreqissuer=' . $return_to);
 }
 
 /**

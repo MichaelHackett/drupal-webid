@@ -202,7 +202,7 @@ function _webidauth_user_login_form_alter(&$form, &$form_state) {
     // Drupal route handling the redirect/response from the WebID IdP.
     $webidauth_uri = url('webidauth/authenticate', array('absolute' => TRUE));
     $items[] = array(
-      'data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server', DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $webidauth_uri, array('external' => TRUE)),
+      'data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server_uri', DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $webidauth_uri, array('external' => TRUE)),
       'class' => array('webidauth-link'),
     );
 
@@ -227,7 +227,7 @@ function webidauth_admin() {
     $form = array();
 
     $form['webidauth_auth_server_uri'] = array('#type' => 'textfield', '#title' => t
-        ('WebID authentication server URI'), '#default_value' => variable_get('webidauth_auth_server',
+        ('WebID authentication server URI'), '#default_value' => variable_get('webidauth_auth_server_uri',
         DEFAULT_WEBID_VALIDATOR), '#size' => 32, '#description' => t("The address of the WebID authentication server."),
         '#required' => TRUE, );
     $form['webidauth_auth_server_cert'] =  array('#type' => 'textarea', '#title' => t
@@ -265,8 +265,8 @@ function webidauth_admin_validate($form, &$form_state) {
  */
 function webidauth_admin_submit($form, &$form_state) {
     if (valid_url($form_state['values']['webidauth_auth_server_uri'])) {
-        variable_set('webidauth_auth_server', $form_state['values']['webidauth_auth_server_uri']);
-        variable_set('webidauth_auth_certificate', $form_state['values']['webidauth_auth_server_cert']);
+        variable_set('webidauth_auth_server_uri', $form_state['values']['webidauth_auth_server_uri']);
+        variable_set('webidauth_auth_server_cert', $form_state['values']['webidauth_auth_server_cert']);
     }
 }
 
