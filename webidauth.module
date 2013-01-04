@@ -199,9 +199,13 @@ function _webidauth_user_login_form_alter(&$form, &$form_state) {
 
     global $base_url;
     $items = array();
-    $items[] = array('data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server',
-        DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $base_url .
-        "/?q=webidauth/authenticate", array('external' => TRUE)), 'class' => array('webidauth-link'), );
+
+    // Drupal route handling the redirect/response from the WebID IdP.
+    $webidauth_uri = url('webidauth/authenticate', array('absolute' => TRUE));
+    $items[] = array(
+      'data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server', DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $webidauth_uri, array('external' => TRUE)),
+      'class' => array('webidauth-link'),
+    );
 
     $items[] = array('data' => l(t('Cancel WebID login'), '#', array('external' => TRUE)),
         'class' => array('user-link'), );
