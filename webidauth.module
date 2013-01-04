@@ -266,11 +266,7 @@ function webidauth_admin_validate($form, &$form_state) {
 function webidauth_admin_submit($form, &$form_state) {
     if (valid_url($form_state['values']['webidauth_auth_server_uri'])) {
         variable_set('webidauth_auth_server', $form_state['values']['webidauth_auth_server_uri']);
-
         variable_set('webidauth_auth_certificate', $form_state['values']['webidauth_auth_server_cert']);
-
-        drupal_set_message(t('Your configuration has been saved.'));
-
     }
 }
 
