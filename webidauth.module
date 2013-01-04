@@ -75,8 +75,7 @@ function webidauth_menu() {
     $items['admin/config/people/webidauth'] = array('title' => 'WebID settings',
         'description' => 'Configure how users are authenticated by WebID.',
         'page callback' => 'drupal_get_form', 'page arguments' => array('webidauth_admin'),
-        'access arguments' => array('access administration pages', 'configure webidauth'), 'type' =>
-        MENU_NORMAL_ITEM, );
+        'access arguments' => array('configure webidauth'), 'type' => MENU_NORMAL_ITEM, );
     $items['webidauth/authenticate'] = array('title' => 'WebID Login',
         'page callback' => 'webidauth_authentication_page', 'access callback' =>
         'user_is_anonymous', 'type' => MENU_CALLBACK, 'file' => 'webidauth.pages.inc', );
