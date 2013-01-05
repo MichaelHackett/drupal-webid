@@ -429,12 +429,11 @@ function webidauth_form_user_register_form_alter(&$form, &$form_state) {
         $img = $foaf->getImage();
         $email = $foaf->getMailbox();
         $user_data = db_select('users', 'u');
-        $user_data->fields('u', array('name'))->condition(db_or()->condition('u.name', $username,
-            '=')->condition('u.mail', $email, '='));
+        $user_data->fields('u', array('name'))->condition('u.mail', $email, '=');
 
         $user_obj = $user_data->execute()->fetchObject();
 
-        if ($user_obj !== FALSE) {
+        if ($email && $user_obj !== FALSE) {
 
 
             $form['note'] = array('#weight' => -20, '#type' => 'item', '#title' => t('Already a member?'),
