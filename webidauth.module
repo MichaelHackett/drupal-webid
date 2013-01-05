@@ -437,8 +437,7 @@ function webidauth_form_user_register_form_alter(&$form, &$form_state) {
 
 
             $form['note'] = array('#weight' => -20, '#type' => 'item', '#title' => t('Already a member?'),
-                '#description' => t('It seems you already have an account with the username ' .
-                $username . ' or email address ' . $email . ',
+                '#description' => t('It seems you already have an account with the email address ' . $email . ',
          loaded from your WebID profile.
          If that account is yours, please login first using your username and password and add your WebID to your account,
          afterwards, to be able to login both ways.'), );
