@@ -126,7 +126,7 @@ function webidprovider_preprocess_user_profile(&$variables) {
     '#tag' => 'meta',
     '#attributes' => array(
       'about' => url($uri['path'], array_merge($uri['options'], array('fragment' => 'me'))),
-      'property' => array('foaf:nick'),
+      'property' => array('foaf:nick', 'foaf:name'),
       'content' => format_username($account),
     ),
   );
