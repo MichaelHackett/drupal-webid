@@ -102,7 +102,7 @@ function webidauth_authentication_page()
 
     // Package the certificate defined on the site so that it can be sent to
     // Authentication_X509CertRepo.
-    $referer_host = Authentication_URL::parse(variable_get('webidauth_auth_server_uri'))->host;
+    $referer_host = Authentication_URL::parse(variable_get('webidauth_auth_server_uri', DEFAULT_WEBID_VALIDATOR))->host;
     $cert_repo = array($referer_host => variable_get('webidauth_auth_server_cert', DEFAULT_WEBID_VALIDATOR_CERTIFICATE));
 
     // Instantiate Authentication_FoafSSLDelegate() with our custom certificate.
@@ -230,7 +230,7 @@ function webidauth_user_add_submit($form, &$form_state)
     //$return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => true));
 
     global $base_url;
-    drupal_goto(variable_get('webidauth_auth_server_uri') . '?authreqissuer=' . $return_to);
+    drupal_goto(variable_get('webidauth_auth_server_uri', DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $return_to);
 }
 
 /**
