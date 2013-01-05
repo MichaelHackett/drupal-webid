@@ -95,7 +95,14 @@ function webidprovider_certgen_page($account) {
       ),
   ));
 
-  $output = '<p>' . t('You can generate a browser certificate for your Drupal WebID using a third party certificate generator. You will then be able to use this certificate to authenticate on services which support the WebID protocol. <a target="_blank" href="@certgen">Generate browser certificate</a>.', array('@certgen' => $certgen_uri)) . '</p>';
+  $output = '<p>' . t('You can generate a browser certificate for your Drupal WebID using a third party certificate generator. You will then be able to use this certificate to authenticate on services which support the WebID protocol:', array('@certgen' => $certgen_uri)) . '</p>';
+  $output .= '<ol>';
+  $output .= '<li>' . t('<a target="_blank" href="@certgen">Generate browser certificate</a> for your Drupal WebID profile.', array('@certgen' => $certgen_uri)) . '</li>';
+  $output .= '<li>' . t('Once you have generated a certificate, don\'t forget to <a href="@user-edit">edit your user account</a> in order to add the public key of your new certificate, otherwise you will not be able to authenticate on other services using the WebID protocol. You have to do this for each certificate associated with your Drupal user account.', array('@certgen' => $certgen_uri, '@user-edit' => url('user/' . $account->uid . '/edit'))) . '</li>';
+  $output .= '</ol>';
+
+  $output .= '<p>' . t('You have to follow the two steps above everytime you generate a certificate (for example if you want to have a certificate for each browser.)') . '</li>';
+
 
   return $output;
 }
