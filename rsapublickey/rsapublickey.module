@@ -14,7 +14,7 @@ function rsapublickey_help($path, $arg) {
     case 'admin/help#rsapublickey':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The RSA public key module defines a field type for the Field module useful to store RSA public keys which can be used to authenticate of the Web using the FOAF+SSL protocol. Each public key is composed of a certificate containing hexadecimal characters and a module exponent. See the <a href="@field-help">Field module help page</a> for more information about fields.', array('@field-help' => url('admin/help/field'))) . '</p>';
+      $output .= '<p>' . t('The RSA public key module defines a field type for the Field module useful to store RSA public keys which can be used to authenticate of the Web using the WebID protocol. Each public key is composed of a certificate containing hexadecimal characters and a module exponent. See the <a href="@field-help">Field module help page</a> for more information about fields.', array('@field-help' => url('admin/help/field'))) . '</p>';
       return $output;
   }
 }
@@ -34,7 +34,7 @@ function rsapublickey_rdf_namespaces() {
 function rsapublickey_field_info() {
   return array(
     'rsapublickey' => array(
-      'label' => t('RSA Public key (FOAF+SSL)'),
+      'label' => t('RSA Public key (WebID)'),
       'description' => t('This field stores a RSA public key in the database.'),
       'default_widget' => 'rsapublickey',
       'default_formatter' => 'rsapublickey',
