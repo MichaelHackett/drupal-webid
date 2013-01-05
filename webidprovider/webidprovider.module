@@ -97,7 +97,7 @@ function webidprovider_certgen_page($account) {
   $certgen_uri = url($certgen_uri, array(
       'query' => array(
         'webid' => $account_webid_uri,
-        'name' => format_username($account),
+        'name' => format_username($account) . ' (' . variable_get('site_name') . ')',
         'email' => $account->mail,
       ),
   ));
