@@ -37,7 +37,7 @@ class FoafParser
      */
     public function getName()
     {
-        $value = (string)$this->graphite->resource($this->uri)->get("foaf:nick");
+        $value = (string)$this->graphite->resource($this->uri)->get("foaf:name");
         if ($value && $value != '[NULL]')
             return $value;
     }
