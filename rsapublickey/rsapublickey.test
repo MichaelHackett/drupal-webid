@@ -1,5 +1,8 @@
 <?php
-// $Id:  $
+/**
+ * @file
+ * Test RSA public key fields and widgets
+ */
 
 class RsapublickeyFieldTestCase extends DrupalWebTestCase {
   protected $instance;

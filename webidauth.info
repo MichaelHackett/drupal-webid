@@ -4,3 +4,5 @@ package = WebID
 core = 7.x
 dependencies[] = libraries
 configure = admin/config/people/webidauth
+files[] = webidauth.module
+

@@ -18,8 +18,7 @@
 /**
  * Menu callback; Manage WebID identities for the specified user.
  */
-function webidauth_user_identities($account)
-{
+function webidauth_user_identities($account) {
     global $user;
     drupal_set_title(format_username($account));
     drupal_add_css(drupal_get_path('module', 'webidauth') . '/webidauth.css');
@@ -181,29 +180,24 @@ function admin_webidauth_user_add()
  * @param mixed $form_state
  * @return
  */
-function admin_webidauth_user_add_submit($form, &$form_state)
-{
-    $return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => true));
+function admin_webidauth_user_add_submit($form, &$form_state) {
+    $return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => TRUE));
     $uri = $form_state['values']['webidauth_identifier'];
     if ($uri) {
 
 
         $u = _webidauth_exists($uri);
-        if ($u !== false) {
+        if ($u !== FALSE) {
             drupal_set_message(t('The claimed WebID is already used by another user. Please
              review user <a href="user/' . $u->uid . '/webidauth/">' . $u->name .
                 '</a> before continuing.'), 'warning');
-
-        } else {
-
-
+        }
+        else {
             _webidauth_save($uri, arg(1));
             drupal_set_message(t('The WebID was successfully associated with the selected account.'));
             drupal_goto('user/' . arg(1) . '/webidauth/');
         }
-
     }
-
 }
 
 /**
@@ -212,9 +206,7 @@ function admin_webidauth_user_add_submit($form, &$form_state)
  * @ingroup forms
  * @see webid_user_add_validate()
  */
-function webidauth_user_add()
-{
-
+function webidauth_user_add() {
     $form['actions'] = array('#type' => 'actions');
     $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Add a WebID'));
     return $form;
@@ -224,9 +216,8 @@ function webidauth_user_add()
 /**
  * submit hook for the webidauth_user_add form
  */
-function webidauth_user_add_submit($form, &$form_state)
-{
-    $return_to = url('user/' . arg(1) . '/webidauth/add', array('absolute' => true));
+function webidauth_user_add_submit($form, &$form_state) {
+    $return_to = url('user/' . arg(1) . '/webidauth/add', array('absolute' => TRUE));
     //$return_to = url('user/' . arg(1) . '/webidauth/', array('absolute' => true));
 
     global $base_url;
@@ -236,8 +227,7 @@ function webidauth_user_add_submit($form, &$form_state)
 /**
  * Menu callback; Delete the specified WebID identity from the system.
  */
-function webidauth_user_delete_form($form, $form_state, $account, $wid = 0)
-{
+function webidauth_user_delete_form($form, $form_state, $account, $wid = 0) {
 
     $user_data = db_select('webidauth', 'w');
 
@@ -261,8 +251,7 @@ function webidauth_user_delete_form($form, $form_state, $account, $wid = 0)
 /**
  * submit hook for the webidauth_user_delete form
  */
-function webidauth_user_delete_form_submit($form, &$form_state)
-{
+function webidauth_user_delete_form_submit($form, &$form_state) {
 
     $query = db_delete('webidauth')->condition('uid', $form_state['build_info']['args'][0]->
         uid)->condition('wid', $form_state['build_info']['args'][1])->execute();

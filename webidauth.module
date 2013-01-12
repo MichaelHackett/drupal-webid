@@ -343,75 +343,67 @@ function webidauth_user_view_alter(&$build) {
  * Fills the user profile form with values acquired via WebID.
  */
 function webidauth_form_user_profile_form_alter(&$form, &$form_state) {
-    $edited_user = $form_state['user'];
-
-    $user_data = db_select('webidauth', 'w');
-    $user_data->join('users', 'u', 'w.uid = u.uid');
-    $user_data->groupBy('u.uid'); //GROUP BY user ID
-
-    $user_data->fields('w', array('uri'))->condition('w.uid', $edited_user->uid, '=');
-
-    $user_obj = $user_data->execute()->fetchObject();
-    if ($user_obj !== FALSE) {
-
-        $foaf = new FoafParser($user_obj->uri);
-
-        $img = $foaf->getImage();
-
-        $form['account']['picture']['#markup'] = t('<img height="100" src="' . $img .
+  $edited_user = $form_state['user'];
+  $user_data = db_select('webidauth', 'w');
+  $user_data->join('users', 'u', 'w.uid = u.uid');
+  $user_data->groupBy('u.uid'); //GROUP BY user ID
+  $user_data->fields('w', array('uri'))->condition('w.uid', $edited_user->uid, '=');
+  $user_obj = $user_data->execute()->fetchObject();
+  if ($user_obj !== FALSE) {
+    $foaf = new FoafParser($user_obj->uri);
+    $img = $foaf->getImage();
+    $form['account']['picture']['#markup'] = t('<img height="100" src="' . $img .
             '"/>');
-    }
+  }
 }
 
 /**
- * webidauth admin user register form validate hook
+ * webidauth admin user register form validate hook.
  *
  * @param mixed $form
  * @param mixed $form_state
  * @return
  */
 function webidauth_admin_user_register_validate(&$form, &$form_state) {
-    if (user_access('administer users') !== TRUE)
-        return;
-
-    if ($form_state['values']['pass'] === '') {
-        if ($form_state['values']['foaf_uri'] === '') {
-            form_set_error('pass', t('You must either enter a valid password or provide a FOAF URI.'));
-            form_set_error('foaf_uri', t('You must either enter a valid password or provide a FOAF URI.'));
-        } else {
-            $form_state['values']['pass'] = user_password();
-        }
+  if (user_access('administer users') !== TRUE)
+    return;
+  if ($form_state['values']['pass'] === '') {
+    if ($form_state['values']['foaf_uri'] === '') {
+      form_set_error('pass', t('You must either enter a valid password or provide a FOAF URI.'));
+      form_set_error('foaf_uri', t('You must either enter a valid password or provide a FOAF URI.'));
     }
-
-    if ($form_state['values']['foaf_uri'] !== '') {
-        if (valid_url($form_state['values']['foaf_uri'], TRUE) === FALSE) {
-            form_set_error('foaf_uri', t('You must enter a valid FOAF URI.'));
-            return;
-        }
-        $uri = $form_state['values']['foaf_uri'];
-        $u = _webidauth_exists($uri);
-        if ($u !== FALSE)
-            form_set_error('foaf_uri', t('The claimed WebID is already used by another user. Please
-             review user <a href="user/' . $u->uid . '/webidauth/">' . $u->name .
-                '</a> before continuing.'));
+    else {
+      $form_state['values']['pass'] = user_password();
     }
+  }
+  if ($form_state['values']['foaf_uri'] !== '') {
+    if (valid_url($form_state['values']['foaf_uri'], TRUE) === FALSE) {
+      form_set_error('foaf_uri', t('You must enter a valid FOAF URI.'));
+      return;
+    }
+    $uri = $form_state['values']['foaf_uri'];
+    $u = _webidauth_exists($uri);
+    if ($u !== FALSE)
+      form_set_error('foaf_uri', t('The claimed WebID is already used by another user. Please
+      review user <a href="user/' . $u->uid . '/webidauth/">' . $u->name .
+      '</a> before continuing.'));
+  }
 }
 
 /**
- * webidauth admin user register form submit hook
+ * webidauth admin user register form submit hook.
  *
  * @param mixed $form
  * @param mixed $form_state
  * @return
  */
 function webidauth_admin_user_register_submit(&$form, &$form_state) {
-    user_register_submit($form, $form_state);
-    $uid = $form_state['values']['uid'];
-    $uri = $form_state['values']['foaf_uri'];
-    if ($uid) {
-
-        _webidauth_save($uri, $uid);
-    }
+  user_register_submit($form, $form_state);
+  $uid = $form_state['values']['uid'];
+  $uri = $form_state['values']['foaf_uri'];
+  if ($uid) {
+    _webidauth_save($uri, $uid);
+  }
 }
 
 /**
@@ -493,69 +485,70 @@ function webidauth_init() {
     drupal_add_js(drupal_get_path('module', 'webidauth') . '/tls_logout.js');
 }
 
-// Implements hook_libraries_info
 /**
  * webidauth_libraries_info()
+ *
+ * Implements hook_libraries_info().
  *
  * @return
  */
 function webidauth_libraries_info() {
-    $libraries['libAuthentication'] = array('name' => 'libAuthentication library',
-        'vendor url' => 'https://github.com/melvincarvalho/libAuthentication',
-        'download url' => 'https://github.com/melvincarvalho/libAuthentication/zipball/master',
-        'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
-        'lines' => 5, ), 'files' => array('php' => array('lib/Authentication.php'), ), );
-    $libraries['Graphite'] = array('name' => 'Graphite library', 'vendor url' =>
-        'http://graphite.ecs.soton.ac.uk/', 'download url' =>
-        'http://graphite.ecs.soton.ac.uk/download.php/Graphite_and_ARC2.tgz',
-        'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
-        'lines' => 5, ), 'files' => array('php' => array('Graphite.php'), ), );
-    $libraries['ARC2'] = array('name' => 'ARC RDF Classes for PHP ', 'vendor url' =>
-        'https://github.com/semsol/arc2', 'download url' =>
-        'https://github.com/semsol/arc2/zipball/master', 'version arguments' => array('file' =>
-        'readme.txt', 'pattern' => '/Version (\d+)/', 'lines' => 5, ), 'files' => array
-        ('php' => array('arc/ARC2.php'), ), );
-    return $libraries;
+  $libraries['libAuthentication'] = array('name' => 'libAuthentication library',
+    'vendor url' => 'https://github.com/melvincarvalho/libAuthentication',
+    'download url' => 'https://github.com/melvincarvalho/libAuthentication/zipball/master',
+    'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
+    'lines' => 5, ), 'files' => array('php' => array('lib/Authentication.php'), ), );
+  $libraries['Graphite'] = array('name' => 'Graphite library', 'vendor url' =>
+    'http://graphite.ecs.soton.ac.uk/', 'download url' =>
+    'http://graphite.ecs.soton.ac.uk/download.php/Graphite_and_ARC2.tgz',
+    'version arguments' => array('file' => 'readme.txt', 'pattern' => '/Version (\d+)/',
+    'lines' => 5, ), 'files' => array('php' => array('Graphite.php'), ), );
+  $libraries['ARC2'] = array('name' => 'ARC RDF Classes for PHP ', 'vendor url' =>
+    'https://github.com/semsol/arc2', 'download url' =>
+    'https://github.com/semsol/arc2/zipball/master', 'version arguments' => array('file' =>
+    'readme.txt', 'pattern' => '/Version (\d+)/', 'lines' => 5, ), 'files' => array
+      ('php' => array('arc/ARC2.php'), ), );
+  return $libraries;
 }
-
 
 /**
  * _webidauth_save()
- * saves a webid and associates it to the owning user
+ * saves a webid and associates it to the owning user.
+ *
  * @param mixed $uri The uri containing the foaf profile
  * @param mixed $uid The user that the webid willl be associated with
  * @return
  */
 function _webidauth_save($uri, $uid) {
-    db_insert('webidauth')->fields(array('uri' => $uri, 'uid' =>
-        $uid, ))->execute();
-    $account = user_load($uid);
-    user_set_authmaps($account, array('authname_webidauth' => $account->name));
+  db_insert('webidauth')->fields(array('uri' => $uri, 'uid' =>
+    $uid, ))->execute();
+  $account = user_load($uid);
+  user_set_authmaps($account, array('authname_webidauth' => $account->name));
 }
 
 /**
  * _webidauth_exists()
- * checks if a webid is assigned to a user and returns the user
+ * checks if a webid is assigned to a user and returns the user.
+ *
  * @param mixed $claimed_uri
  * @return FALSE if no user found, the user object otherwise
  */
 function _webidauth_exists($claimed_uri) {
-    $user_data = db_select('webidauth', 'w');
-    $user_data->join('users', 'u', 'w.uid = u.uid');
-
-    $user_data->fields('u', array('name', 'uid'))->condition('w.uri', $claimed_uri,
-        '=');
-
-    $user_obj = $user_data->execute()->fetchObject();
-    if ($user_obj !== FALSE) {
-
-        return $user_obj;
-    } else
-        return FALSE;
+  $user_data = db_select('webidauth', 'w');
+  $user_data->join('users', 'u', 'w.uid = u.uid');
+  $user_data->fields('u', array('name', 'uid'))->condition('w.uri', $claimed_uri,
+    '=');
+  $user_obj = $user_data->execute()->fetchObject();
+  if ($user_obj !== FALSE) {
+    return $user_obj;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /**
- * Implements hook_permission()
+ * Implements hook_permission().
  *
  * @return
  */
@@ -567,8 +560,7 @@ function webidauth_permission() {
     ),
     'modify webidauth identities' => array(
       'title' => t('Modify identities'),
-      'description' => t('Create new users only providing their webid, username and email, add and remove webid identities from users.'),
+      'description' => t('Create new users only providing their webid, username and email, add and remove WebID identities from users.'),
     ),
-
   );
 }

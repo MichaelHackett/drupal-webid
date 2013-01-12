@@ -1,5 +1,4 @@
 <?php
-// $Id:  $
 
 /**
  * @file
@@ -62,7 +61,6 @@ function rsapublickey_field_schema($field) {
         ),
       );
       break;
-
   }
   return array(
     'columns' => $columns,
@@ -97,7 +95,6 @@ function rsapublickey_field_formatter_info() {
 function rsapublickey_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   $settings = $display['settings'];
-
   switch ($display['type']) {
     case 'rsapublickey':
       foreach ($items as $delta => $item) {
@@ -113,12 +110,10 @@ function rsapublickey_field_formatter_view($entity_type, $entity, $field, $insta
         $output .= '    </div>';
         $output .= '  </div>';
         $output .= '</div>';
-
         $element[$delta] = array('#markup' => $output);
       }
       break;
   }
-
   return $element;
 }
 
@@ -148,6 +143,5 @@ function rsapublickey_field_widget_form(&$form, &$form_state, $field, $instance,
     '#default_value' => isset($items[$delta]['exponent']) ? $items[$delta]['exponent'] : '',
     '#title' => t('Exponent'),
   );
-
   return $element;
 }
