@@ -196,11 +196,11 @@ function _webidauth_user_login_form_alter(&$form, &$form_state) {
         '/webidauth.js';
     $form['#attached']['library'][] = array('system', 'jquery.cookie');
 
-    global $base_url;
+    $issuer_url = url('webidauth/authenticate', array('absolute' => TRUE));
     $items = array();
     $items[] = array('data' => l(t('Log in using WebID'), variable_get('webidauth_auth_server',
-        DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $base_url .
-        "/?q=webidauth/authenticate", array('external' => TRUE)), 'class' => array('webidauth-link'), );
+        DEFAULT_WEBID_VALIDATOR) . '?authreqissuer=' . $issuer_url,
+        array('external' => TRUE)), 'class' => array('webidauth-link'), );
 
     $items[] = array('data' => l(t('Cancel WebID login'), '#', array('external' => TRUE)),
         'class' => array('user-link'), );
@@ -263,6 +263,8 @@ function webidauth_admin_submit($form, &$form_state) {
     if (valid_url($form_state['values']['webidauth_auth_server_uri'])) {
         variable_set('webidauth_auth_server', $form_state['values']['webidauth_auth_server_uri']);
 
+// *** bug: variable key should be "webidauth_auth_server_certificate"
+// *** should be using symbolic constants anyway! Fix here and in webidauth.pages.inc
         variable_set('webidauth_auth_certificate', $form_state['values']['webidauth_auth_server_cert']);
 
         drupal_set_message(t('Your configuration has been saved.'));
